@@ -1,6 +1,5 @@
 from src.InputData import InputData, RideData
 
-
 def read_input_file(path: str) -> InputData:
     data = InputData()
 
