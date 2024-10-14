@@ -1,37 +1,4 @@
-from src.util import distance
-
-
-class RideData:
-    def __init__(self, start: [int, int], end: [int, int], earliest_start: int, latest_finish: int):
-        self.start = start
-        self.end = end
-        self.earliest_start = earliest_start
-        self.latest_finish = latest_finish
-
-    def start_row(self):
-        return self.start[0]
-
-    def start_column(self):
-        return self.start[1]
-
-    def end_row(self):
-        return self.start[0]
-
-    def end_column(self):
-        return self.start[1]
-
-    def distance(self):
-        return distance(self.start, self.end)
-
-    @staticmethod
-    def from_line(line: str):
-        parts = line.strip(" \n").split(' ')
-        if len(parts) != 6:
-            raise Exception("Invalid ride line")
-
-        start = (int(parts[0]), int(parts[1]))
-        end = (int(parts[2]), int(parts[3]))
-        return RideData(start, end, int(parts[4]), int(parts[5]))
+from ride import Ride
 
 class InputData:
     def __init__(self):
@@ -77,10 +44,10 @@ class InputData:
         result = self.__layout[key]
         if result is None:
             raise Exception("Invalid layout key")
-        return result
+        return int(result)
 
-    def add_ride(self, ride: RideData):
+    def add_ride(self, ride: Ride):
         self.__rides.append(ride)
 
-    def rides(self) -> list[RideData]:
+    def rides(self) -> list[Ride]:
         return self.__rides
