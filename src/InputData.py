@@ -1,3 +1,6 @@
+from src.util import distance
+
+
 class RideData:
     def __init__(self, start: [int, int], end: [int, int], earliest_start: int, latest_finish: int):
         self.start = start
@@ -16,6 +19,9 @@ class RideData:
 
     def end_column(self):
         return self.start[1]
+
+    def distance(self):
+        return distance(self.start, self.end)
 
     @staticmethod
     def from_line(line: str):
