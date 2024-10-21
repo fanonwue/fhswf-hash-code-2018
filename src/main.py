@@ -35,9 +35,13 @@ def check_duplicate_rides(vehicles: list[Vehicle]) -> list[Ride]:
 
 
 if __name__ == '__main__':
-    ride_count_threshold = 50
-    input_data = read_input_file(InputFile.METROPOLIS)
-    vehicles: dict[int, Vehicle] = {}
+    RIDE_COUNT_THRESHOLD: Final[int]    = 50
+    USE_BONUS: Final[bool]              = True
+    DATA_FILE: Final[InputFile]         = InputFile.METROPOLIS
+
+
+    input_data = read_input_file(DATA_FILE)
+    vehicles: list[Vehicle] = []
     for i in range(input_data.layout_vehicles()):
         vehicles[i+1] = Vehicle(i+1)
 
