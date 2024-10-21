@@ -1,13 +1,20 @@
 from src.util import distance
 
 class Ride:
-    def __init__(self, start: [int, int], end: [int, int], earliest_start: int, latest_finish: int):
+    _next_ride_id = 1
+
+    def __init__(self, id: int, start: tuple[int, int], end: tuple[int, int], earliest_start: int, latest_finish: int):
+        self.id = id
         self.start = start
         self.end = end
         self.earliest_start = earliest_start
         self.latest_finish = latest_finish
         self.outstanding: bool = True
         self.arrived_at: int|None = None
+        self.real_start_at: int|None = None
+
+    def set_outstanding(self, outstanding: bool):
+        self.outstanding = outstanding
 
     def start_row(self):
         return self.start[0]
@@ -21,35 +28,9 @@ class Ride:
     def end_column(self):
         return self.start[1]
 
-    def calculate_distance_to_start_row(self, vehicle_location_row: int):
-        return self.start_row() - vehicle_location_row
 
-    def calculate_distance_to_start_column(self, vehicle_location_column: int):
-        return self.start_column() - vehicle_location_column
-
-    def calculate_distance_to_start(self, vehicle_location_row: int, vehicle_location_column: int) -> int:
-        """
-        Calculate the distance traveled to the start of the ride.
-        :param vehicle_location_row: the row location of the vehicle.
-        :param vehicle_location_column: the column location of the vehicle.
-        :return: the distance traveled to the start of the ride.
-        """
-        return self.calculate_distance_to_start_row(vehicle_location_row) + self.calculate_distance_to_start_column(vehicle_location_column)
-
-    def calculate_distance_to_finish_row(self, vehicle_location_row: int) -> int:
-        return self.end_row() - vehicle_location_row
-
-    def calculate_distance_to_finish_column(self, vehicle_location_column: int) -> int:
-        return self.end_column() - vehicle_location_column
-
-    def calculate_distance_to_finish(self, vehicle_location_row: int, vehicle_location_column: int) -> int:
-        """
-        Calculate the distance traveled to the finish of the ride.
-        :param vehicle_location_row: the row location of the vehicle.
-        :param vehicle_location_column: the column location of the vehicle.
-        :return: the distance traveled to the finish of the ride.
-        """
-        return self.calculate_distance_to_finish_row(vehicle_location_row) + self.calculate_distance_to_finish_column(vehicle_location_column)
+    def distance_to_start(self, from_pos: tuple[int, int]) -> int:
+        return abs(from_pos[0] - self.start_column()) + abs(from_pos[1] - self.start_row())
 
     def get_route_length(self):
         """
@@ -68,9 +49,6 @@ class Ride:
         # Ride is on time if it has arrived one tick before the latest_finish
         return (self.arrived_at + 1) <= self.latest_finish
 
-    def calculate_slack(self):
-        return (self.latest_finish - self.earliest_start) - self.get_route_length()
-
     @staticmethod
     def from_line(line: str):
         parts = line.strip(" \n").split(' ')
@@ -79,4 +57,6 @@ class Ride:
 
         start = (int(parts[0]), int(parts[1]))
         end = (int(parts[2]), int(parts[3]))
-        return Ride(start, end, int(parts[4]), int(parts[5]))
+        id = Ride._next_ride_id
+        Ride._next_ride_id += 1
+        return Ride(id, start, end, int(parts[4]), int(parts[5]))
