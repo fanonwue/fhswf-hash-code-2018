@@ -23,10 +23,10 @@ class Ride:
         return self.start[1]
 
     def end_row(self):
-        return self.start[0]
+        return self.end[0]
 
     def end_column(self):
-        return self.start[1]
+        return self.end[1]
 
 
     def distance_to_start(self, from_pos: tuple[int, int]) -> int:
