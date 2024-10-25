@@ -1,3 +1,5 @@
+from typing import Final
+
 from src.input_data import InputData
 from src.input_files import InputFile
 from src.ride import Ride
@@ -43,20 +45,17 @@ if __name__ == '__main__':
     input_data = read_input_file(DATA_FILE)
     vehicles: list[Vehicle] = []
     for i in range(input_data.layout_vehicles()):
-        vehicles[i+1] = Vehicle(i+1)
-
-    is_finished = False
-    use_bonus = True
-    ride_count = 0
-
+        vehicles.append(Vehicle(i+1))
 
     bonus: int|None = None
-    if use_bonus:
+    if USE_BONUS:
         bonus = input_data.layout_bonus()
+    is_finished = False
+    ride_count = 0
 
     while not is_finished:
         is_finished = True
-        for v in vehicles.values():
+        for v in vehicles:
             current_ride: Ride|None = None
             ride_count = 0
             for r in input_data.rides():
@@ -66,7 +65,7 @@ if __name__ == '__main__':
                 if current_ride is None or (v.evaluate(r, bonus) < v.evaluate(current_ride, bonus)):
                     current_ride = r
 
-                if ride_count > ride_count_threshold:
+                if ride_count > RIDE_COUNT_THRESHOLD:
                     break
 
             if current_ride is None:
@@ -95,7 +94,7 @@ if __name__ == '__main__':
     print("Rides:")
     score = 0
     bonus_score = 0
-    for v in vehicles.values():
+    for v in vehicles:
         ids = ", ".join(map(lambda r: str(r.id), v.get_rides()))
         print(f"Vehicle: {v.id} - Rides: {ids}")
         on_time_rides = list(filter(lambda r: r.was_on_time(), v.get_rides()))
@@ -108,5 +107,5 @@ if __name__ == '__main__':
     print(f"Score: {real_score} ({score} + {bonus_score})")
 
 
-    duplicate_rides = check_duplicate_rides(list(vehicles.values()))
+    duplicate_rides = check_duplicate_rides(vehicles)
     assert len(duplicate_rides) == 0, "Got duplicate rides"
