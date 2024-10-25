@@ -25,7 +25,7 @@ class Vehicle:
             # some high number
             return 10_000_000
 
-        return estimate + delta_wait
+        return estimate - delta_wait
 
     def _evaluate_with_bonus(self, ride: Ride, bonus: int) -> int:
         distance_to_start = self.distance_to_ride(ride)

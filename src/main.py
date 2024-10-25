@@ -38,8 +38,8 @@ def check_duplicate_rides(vehicles: list[Vehicle]) -> list[Ride]:
 
 if __name__ == '__main__':
     RIDE_COUNT_THRESHOLD: Final[int]    = 50
-    USE_BONUS: Final[bool]              = True
-    DATA_FILE: Final[InputFile]         = InputFile.METROPOLIS
+    USE_BONUS: Final[bool]              = False
+    DATA_FILE: Final[InputFile]         = InputFile.HIGH_BONUS
 
 
     input_data = read_input_file(DATA_FILE)
@@ -75,21 +75,25 @@ if __name__ == '__main__':
                 is_finished = False
 
             current_ride.real_start_at = v.get_current_tick()
-            v.set_position(current_ride.end)
-
             distance_to_ride = current_ride.distance_to_start(v.position())
 
             delta_wait = v.get_current_tick() + distance_to_ride - current_ride.earliest_start
 
-            v.set_current_tick( v.get_current_tick() + current_ride.get_route_length() + distance_to_ride)
-
             if delta_wait < 0:
+                c = v.get_current_tick()
                 v.set_current_tick(v.get_current_tick() + abs(delta_wait))
+                c2 = v.get_current_tick()
+                current_ride.real_start_at = v.get_current_tick() + distance_to_ride
 
-            current_ride.arrived_at = v.get_current_tick()
-            v.add_ride(current_ride)
-            current_ride.set_outstanding(False)
-
+            new_tick = v.get_current_tick() + current_ride.get_route_length() + distance_to_ride
+            if new_tick < input_data.layout_steps():
+                v.set_current_tick( v.get_current_tick() + current_ride.get_route_length() + distance_to_ride)
+                current_ride.arrived_at = v.get_current_tick()
+                v.set_position(current_ride.end)
+                v.add_ride(current_ride)
+                current_ride.set_outstanding(False)
+            else:
+                current_ride.set_outstanding(False)
 
     print("Rides:")
     score = 0
