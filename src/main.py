@@ -1,3 +1,4 @@
+import json
 from typing import Final, Iterable
 
 from src.input_data import InputData
@@ -47,12 +48,37 @@ def write_result_file(file: str, vehicles: list[Vehicle]):
     with open(file, 'w') as f:
         f.writelines(line_generator())
 
+def write_result_json(file: str, vehicles: list[Vehicle], input_data: InputData):
+    def ride_code(ride: Ride) -> int:
+        if ride.outstanding:
+            return -1
+        if not ride.was_on_time():
+            return 0
+        if not ride.started_on_time():
+            return 1
+        return 1000
+
+    rides = []
+    for v in vehicles:
+        for r in v.get_rides():
+            rides.append([r.start_row(), r.start_column(), r.end_row(), r.end_column(), ride_code(r)])
+
+    json_data = {
+        "row": input_data.layout_rows(),
+        "column": input_data.layout_columns(),
+        "rides": rides
+    }
+
+    with open(file, 'w') as f:
+        json.dump(json_data, f)
+
 
 if __name__ == '__main__':
     RIDE_COUNT_THRESHOLD: Final[int]    = 50
-    USE_BONUS: Final[bool]              = False
+    USE_BONUS: Final[bool]              = True
     OUTPUT_FILE                         = root / "out.txt"
-    DATA_FILE: Final[InputFile]         = InputFile.HIGH_BONUS
+    OUTPUT_JSON                         = root / "out.json"
+    DATA_FILE: Final[InputFile]         = InputFile.METROPOLIS
 
 
     input_data = read_input_file(DATA_FILE)
@@ -115,10 +141,10 @@ if __name__ == '__main__':
         ids = ", ".join(map(lambda r: str(r.id), v.get_rides()))
         print(f"Vehicle: {v.id} - Rides: {ids}")
         on_time_rides = list(filter(lambda r: r.was_on_time(), v.get_rides()))
-        print("Rides on time: " + str(on_time_rides.__len__()))
+        print("Rides on time: " + str(len(on_time_rides)))
         for ride in on_time_rides:
             score += ride.get_route_length()
-            if ride.real_start_at == ride.earliest_start:
+            if ride.started_on_time():
                 bonus_score += input_data.layout_bonus()
     real_score = score + bonus_score
     print(f"Score: {real_score} ({score} + {bonus_score})")
@@ -128,3 +154,5 @@ if __name__ == '__main__':
     assert len(duplicate_rides) == 0, "Got duplicate rides"
     print(f"Writing to output file at {str(OUTPUT_FILE.relative_to(root))}")
     write_result_file(str(OUTPUT_FILE), vehicles)
+    print(f"Writing JSON output file at {str(OUTPUT_JSON.relative_to(root))}")
+    write_result_json(str(OUTPUT_JSON), vehicles, input_data)

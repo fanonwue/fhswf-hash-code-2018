@@ -49,6 +49,9 @@ class Ride:
         # Ride is on time if it has arrived one tick before the latest_finish
         return (self.arrived_at + 1) <= self.latest_finish
 
+    def started_on_time(self) -> bool:
+        return self.real_start_at == self.earliest_start
+
     @staticmethod
     def from_line(line: str):
         parts = line.strip(" \n").split(' ')
