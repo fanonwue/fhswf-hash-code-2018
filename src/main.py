@@ -1,14 +1,16 @@
-from typing import Final
+from typing import Final, Iterable
 
 from src.input_data import InputData
 from src.input_files import InputFile
 from src.ride import Ride
 from src.vehicle import Vehicle
 from functools import cmp_to_key
+from pathlib import Path
 
+root = Path(__file__).parent.parent
 
 def read_input_file(file: InputFile) -> InputData:
-    data_path = "../data/" + file.value
+    data_path = root / "data" / file.value
     data = InputData()
 
     with open(data_path, 'r') as f:
@@ -35,10 +37,21 @@ def check_duplicate_rides(vehicles: list[Vehicle]) -> list[Ride]:
 
     return duplicate_rides
 
+def write_result_file(file: str, vehicles: list[Vehicle]):
+    def line_generator() -> Iterable[str]:
+        for v in vehicles:
+            rides = v.get_rides()
+            ids = " ".join(map(lambda r: str(r.id), rides))
+            yield f"{len(rides)} {ids}\n"
+
+    with open(file, 'w') as f:
+        f.writelines(line_generator())
+
 
 if __name__ == '__main__':
     RIDE_COUNT_THRESHOLD: Final[int]    = 50
     USE_BONUS: Final[bool]              = False
+    OUTPUT_FILE                         = root / "out.txt"
     DATA_FILE: Final[InputFile]         = InputFile.HIGH_BONUS
 
 
@@ -113,3 +126,5 @@ if __name__ == '__main__':
 
     duplicate_rides = check_duplicate_rides(vehicles)
     assert len(duplicate_rides) == 0, "Got duplicate rides"
+    print(f"Writing to output file at {str(OUTPUT_FILE.relative_to(root))}")
+    write_result_file(str(OUTPUT_FILE), vehicles)
