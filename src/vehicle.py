@@ -8,6 +8,16 @@ class Vehicle:
         self.id = id
 
     def evaluate(self, ride: Ride, bonus: int|None) -> int:
+        """
+        Gives the passed ride a score. The score represents a calculation that took the difficult and reward into account.
+        Higher values mean a lower priority.
+
+        :param ride: the ride to evaluate
+        :param bonus: the bonus to take into account
+        :return: an estimate of the route - higher values mean a lower priority as it's going to be more difficult / less worth
+        to fulfill it
+        """
+
         if bonus is None:
             return self._evaluate_no_bonus(ride)
         return self._evaluate_with_bonus(ride, bonus)
@@ -22,7 +32,7 @@ class Vehicle:
             delta_wait = 0
 
         if (ride.get_route_length() + distance_to_start + self._current_tick + delta_wait) > ride.latest_finish:
-            # some high number
+            # return a high number if we can't make it in time
             return 10_000_000
 
         return estimate - delta_wait
@@ -36,7 +46,7 @@ class Vehicle:
             delta_wait = 0
 
         if (ride.get_route_length() + distance_to_start + self._current_tick + delta_wait) > ride.latest_finish:
-            # some high number
+            # return a high number if we can't make it in time
             return 10_000_000
 
         if distance_to_start + self._current_tick < ride.earliest_start:
